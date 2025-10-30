@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>温馨弹窗 💝</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            position: relative;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .title {
+            font-size: 3.5em;
+            color: white;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+            margin-bottom: 40px;
+            animation: float 3s ease-in-out infinite;
+            text-align: center;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .start-button {
+            padding: 20px 60px;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .start-button:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .start-button:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .start-button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .start-button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .start-button span {
+            position: relative;
+            z-index: 1;
+        }
+
+        .popup {
+            position: fixed;
+            background: linear-gradient(145deg, #ffffff, #fef5f9);
+            border-radius: 25px;
+            padding: 35px 40px;
+            box-shadow: 0 25px 70px rgba(245, 87, 108, 0.5), 
+                        0 10px 30px rgba(0, 0, 0, 0.3),
+                        inset 0 1px 2px rgba(255, 255, 255, 0.8);
+            min-width: 300px;
+            max-width: 400px;
+            animation: popIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 99999;
+            border: 4px solid;
+            border-image: linear-gradient(135deg, #f093fb, #f5576c, #4facfe) 1;
+            transform-origin: center;
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0) rotate(-10deg);
+                opacity: 0;
+            }
+            30% {
+                transform: scale(1.3) rotate(5deg);
+                opacity: 0.8;
+            }
+            60% {
+                transform: scale(0.9) rotate(-3deg);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+        
+        .popup:hover {
+            transform: scale(1.05);
+            box-shadow: 0 30px 80px rgba(245, 87, 108, 0.6), 
+                        0 15px 40px rgba(0, 0, 0, 0.4),
+                        inset 0 1px 2px rgba(255, 255, 255, 0.8);
+        }
+
+        .popup-emoji {
+            font-size: 3em;
+            margin-bottom: 15px;
+            display: block;
+            text-align: center;
+            animation: spin 1s ease-in-out;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg) scale(0.5); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        .popup-text {
+            font-size: 1.15em;
+            line-height: 1.8;
+            color: #2d3748;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-button:hover {
+            transform: rotate(90deg) scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .decorations {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 150px;
+            display: flex;
+            justify-content: space-around;
+            align-items: flex-end;
+            padding: 0 50px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .animal {
+            font-size: 4em;
+            animation: bounce 2s ease-in-out infinite;
+            filter: drop-shadow(3px 3px 6px rgba(0, 0, 0, 0.3));
+        }
+
+        .animal:nth-child(1) { animation-delay: 0s; }
+        .animal:nth-child(2) { animation-delay: 0.2s; }
+        .animal:nth-child(3) { animation-delay: 0.4s; }
+        .animal:nth-child(4) { animation-delay: 0.6s; }
+        .animal:nth-child(5) { animation-delay: 0.8s; }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                transform: translateY(-20px) scale(1.1);
+            }
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            color: white;
+            font-size: 1.5em;
+            animation: twinkle 2s ease-in-out infinite;
+            opacity: 0.7;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.3); }
+        }
+
+        .counter {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px 25px;
+            border-radius: 15px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #667eea;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 2000;
+        }
+
+        /* 手机端适配 */
+        @media (max-width: 768px) {
+            .title {
+                font-size: 2em;
+                margin-bottom: 30px;
+            }
+
+            .start-button {
+                padding: 15px 40px;
+                font-size: 1.2em;
+            }
+
+            /* 手机端禁用悬停放大效果 */
+            .popup:hover {
+                transform: scale(1);
+            }
+
+            .popup {
+                min-width: 200px;
+                max-width: 280px;
+                padding: 20px 25px;
+                border-radius: 18px;
+                border: 3px solid;
+            }
+
+            .popup-emoji {
+                font-size: 2em;
+                margin-bottom: 10px;
+            }
+
+            .popup-text {
+                font-size: 0.9em;
+                line-height: 1.5;
+            }
+
+            .close-button {
+                width: 26px;
+                height: 26px;
+                font-size: 16px;
+                top: 8px;
+                right: 8px;
+            }
+
+            .counter {
+                top: 15px;
+                right: 15px;
+                padding: 10px 18px;
+                font-size: 0.95em;
+            }
+
+            .animal {
+                font-size: 2.5em;
+            }
+
+            .decorations {
+                height: 100px;
+                padding: 0 20px;
+            }
+
+            .star {
+                font-size: 1em;
+            }
+
+            .container {
+                padding: 15px;
+            }
+        }
+
+        /* 超小屏幕（小于 480px）进一步优化 */
+        @media (max-width: 480px) {
+            .title {
+                font-size: 1.6em;
+                margin-bottom: 25px;
+            }
+
+            .start-button {
+                padding: 12px 35px;
+                font-size: 1.1em;
+            }
+
+            /* 超小屏幕也禁用悬停效果 */
+            .popup:hover {
+                transform: scale(1);
+                box-shadow: 0 25px 70px rgba(245, 87, 108, 0.5), 
+                            0 10px 30px rgba(0, 0, 0, 0.3),
+                            inset 0 1px 2px rgba(255, 255, 255, 0.8);
+            }
+
+            .popup {
+                min-width: 180px;
+                max-width: 250px;
+                padding: 18px 22px;
+            }
+
+            .popup-emoji {
+                font-size: 1.8em;
+                margin-bottom: 8px;
+            }
+
+            .popup-text {
+                font-size: 0.85em;
+                line-height: 1.4;
+            }
+
+            .close-button {
+                width: 24px;
+                height: 24px;
+                font-size: 14px;
+            }
+
+            .counter {
+                top: 10px;
+                right: 10px;
+                padding: 8px 15px;
+                font-size: 0.85em;
+            }
+
+            .animal {
+                font-size: 2em;
+            }
+
+            .decorations {
+                height: 80px;
+                padding: 0 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <div class="container">
+        <h1 class="title">✨ 温馨时刻 ✨</h1>
+        <button class="start-button" id="startBtn">
+            <span>点击开始 💝</span>
+        </button>
+    </div>
+
+    <div class="counter" id="counter">弹窗数量: 0</div>
+
+    <div class="decorations">
+        <div class="animal">🐰</div>
+        <div class="animal">🐼</div>
+        <div class="animal">🐱</div>
+        <div class="animal">🐶</div>
+        <div class="animal">🦊</div>
+    </div>
+
+    <script>
+        // 创建星星背景
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 20; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.innerHTML = '⭐';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 2 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+        createStars();
+
+        // 温馨文字内容
+        const messages = [
+            { emoji: '💖', text: '愿你每天都充满阳光与快乐，生活中的每一个瞬间都值得珍惜，愿所有美好都如期而至。' },
+            { emoji: '🌟', text: '记得要好好照顾自己，按时吃饭，早点休息，你的健康比什么都重要，你值得被温柔以待。' },
+            { emoji: '🌈', text: '人生就像一场旅行，不必在意目的地，在意的是沿途的风景和看风景的心情。保持微笑，继续前行！' },
+            { emoji: '💝', text: '每一个清晨都是新的开始，每一次努力都不会白费，相信自己，你比想象中更强大，更优秀！' },
+            { emoji: '🌸', text: '生活不会总是一帆风顺，但请相信，所有的阴霾都会散去，阳光总会照进你的生活。加油！' },
+            { emoji: '✨', text: '你是独一无二的存在，不要和别人比较，做最真实的自己就是最美好的状态。相信自己的价值！' },
+            { emoji: '🎈', text: '当你感到疲惫时，记得停下来休息，给自己一个温暖的拥抱，你已经做得很好了，不要太苛责自己。' },
+            { emoji: '🌺', text: '幸福不是终点，而是旅途中的每一个小确幸。留意生活中的美好细节，它们会让你的心灵更加丰盈。' },
+            { emoji: '🦋', text: '成长就是不断突破自己的过程，勇敢地迎接挑战吧，每一次尝试都会让你变得更好。相信自己的潜力！' },
+            { emoji: '🌻', text: '无论遇到什么困难，都不要放弃希望。黑暗过后总会迎来黎明，坚持下去，美好就在前方等着你。' },
+            { emoji: '💫', text: '你的笑容是这个世界上最美的风景，请一定要保持这份纯真和快乐，让它照亮你的每一天。' },
+            { emoji: '🎀', text: '学会爱自己，是一生中最重要的课题。善待自己，给自己足够的耐心和温柔，你值得所有的美好。' },
+            { emoji: '🌙', text: '夜晚的星空告诉我们，即使在黑暗中也有光亮。无论何时，请记得心中总有一盏灯在为你点亮。' },
+            { emoji: '🎨', text: '生活就像一幅画，需要用心去描绘。每一个色彩都是你的选择，请大胆地涂上你喜欢的颜色！' },
+            { emoji: '🎵', text: '当你感到孤独时，请听听心灵的歌声。每个人都有属于自己的旋律，找到它，跟随它，做真实的自己。' },
+            { emoji: '🍀', text: '好运会眷顾善良的人，你的每一份付出都会有回报。保持善良，保持努力，幸福终会来敲门。' },
+            { emoji: '🎁', text: '每一天都是生命赠予的礼物，用感恩的心去接纳它，用积极的态度去对待它，活出精彩的自己！' },
+            { emoji: '🌟', text: '你就像天上的星星，散发着独特的光芒。不要让任何人熄灭你的光芒，继续闪耀，照亮世界！' },
+            { emoji: '💐', text: '生命中最美好的事情，往往藏在平凡的日子里。珍惜当下，感受生活的温度，你会发现幸福就在身边。' },
+            { emoji: '🦄', text: '保持一颗童心，保持对世界的好奇与热爱。生活需要仪式感，也需要梦想，愿你永远年轻，永远热泪盈眶！' },
+            { emoji: '🌹', text: '爱与被爱，都是世界上最美好的事情。敞开心扉，勇敢去爱，也勇敢接受爱，让温暖填满你的心房。' },
+            { emoji: '🎪', text: '人生如同一场精彩的马戏表演，有欢笑也有泪水。享受每一个瞬间，让生命充满色彩和活力！' },
+            { emoji: '🍰', text: '给自己一些甜蜜的奖励吧！你辛苦了这么久，值得拥有所有美好的事物。记得对自己好一点！' },
+            { emoji: '🎯', text: '设定目标，然后勇敢前进。每一步都算数，每一次努力都有意义。坚持下去，成功就在不远处！' },
+            { emoji: '🌊', text: '像大海一样宽广，像浪花一样自由。不要被束缚，勇敢地去追求你想要的生活，做自己命运的主人！' }
+        ];
+
+        let popupCount = 0;
+        let isGenerating = false;
+
+        function getRandomPosition() {
+            // 根据屏幕宽度自适应弹窗的预留空间
+            const isMobile = window.innerWidth <= 768;
+            const popupWidth = isMobile ? (window.innerWidth <= 480 ? 250 : 280) : 400;
+            const popupHeight = isMobile ? 200 : 250;
+            
+            const maxX = window.innerWidth - popupWidth - 20;
+            const maxY = window.innerHeight - popupHeight - 20;
+            const minX = 10;
+            const minY = isMobile ? 60 : 80;
+            
+            return {
+                x: Math.max(minX, Math.random() * (maxX - minX) + minX),
+                y: Math.max(minY, Math.random() * (maxY - minY) + minY)
+            };
+        }
+
+        function createPopup(message) {
+            const popup = document.createElement('div');
+            popup.className = 'popup';
+            
+            const position = getRandomPosition();
+            popup.style.left = position.x + 'px';
+            popup.style.top = position.y + 'px';
+            
+            popup.innerHTML = `
+                <button class="close-button" onclick="this.parentElement.remove(); updateCounter();">×</button>
+                <span class="popup-emoji">${message.emoji}</span>
+                <div class="popup-text">${message.text}</div>
+            `;
+            
+            document.body.appendChild(popup);
+            popupCount++;
+            document.getElementById('counter').textContent = `弹窗数量: ${popupCount}`;
+            
+            console.log('弹窗已创建:', message.emoji, '位置:', position);
+        }
+        
+        function updateCounter() {
+            const currentPopups = document.querySelectorAll('.popup').length;
+            document.getElementById('counter').textContent = `弹窗数量: ${currentPopups}`;
+        }
+
+        document.getElementById('startBtn').addEventListener('click', function() {
+            console.log('按钮被点击了！');
+            
+            if (isGenerating) {
+                console.log('已经在生成中，返回');
+                return;
+            }
+            
+            isGenerating = true;
+            this.disabled = true;
+            this.style.opacity = '0.6';
+            this.style.cursor = 'not-allowed';
+            this.innerHTML = '<span>正在生成... ⏳</span>';
+            
+            console.log('开始生成弹窗，共', messages.length, '个');
+            
+            let index = 0;
+            const interval = setInterval(() => {
+                if (index < messages.length) {
+                    createPopup(messages[index]);
+                    index++;
+                } else {
+                    clearInterval(interval);
+                    isGenerating = false;
+                    this.disabled = false;
+                    this.style.opacity = '1';
+                    this.style.cursor = 'pointer';
+                    this.innerHTML = '<span>再次生成 💝</span>';
+                    console.log('所有弹窗生成完成！');
+                }
+            }, 100); // 0.1秒间隔
+        });
+
+        // 点击背景关闭所有弹窗
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.popup').forEach(popup => popup.remove());
+                popupCount = 0;
+                document.getElementById('counter').textContent = `弹窗数量: ${popupCount}`;
+            }
+        });
+    </script>
+</body>
+</html>
